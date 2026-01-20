@@ -4,9 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PowerScript Pro - পেশাদার PowerShell টুলস ম্যানেজমেন্ট</title>
+    
+    <!-- SEO মেটা ট্যাগ -->
+    <meta name="description" content="PowerShell টুলস ম্যানেজমেন্ট, টিউটোরিয়াল এবং অটোমেশন প্ল্যাটফর্ম">
+    <meta name="keywords" content="PowerShell, Scripting, Automation, Windows, Tools Management">
+    <meta name="author" content="PowerScript Pro">
+    
+    <!-- CSS Libraries -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/vs2015.min.css">
+    
+    <!-- ফেভিকন -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -692,6 +703,47 @@
         .parameter-item .btn-sm {
             padding: 5px 10px;
         }
+
+        /* সিলেক্টেবল টুল কার্ড */
+        .tool-card.selectable {
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .tool-card.selectable.selected {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .tool-card.selectable .selection-checkbox {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: none;
+        }
+        
+        .tool-card.selectable.selected .selection-checkbox {
+            display: block;
+        }
+
+        /* সেটিংস ট্যাব কন্টেন্ট */
+        .settings-tab-content {
+            display: none;
+        }
+        
+        .settings-tab-content.active {
+            display: block;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        /* ট্যাবেল স্টাইল */
+        .table-hover tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        [data-theme="dark"] .table-hover tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -1282,6 +1334,152 @@
                 <div class="col-lg-9">
                     <div id="settingsContent">
                         <!-- সেটিংস কন্টেন্ট লোড হবে এখানে -->
+                        <div id="generalSettings" class="settings-tab-content active">
+                            <div class="admin-card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-cog me-2"></i>সাধারণ সেটিংস</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">ডিফল্ট টুল ক্যাটাগরি</label>
+                                        <select class="form-select" id="defaultCategory">
+                                            <option value="system">সিস্টেম টুলস</option>
+                                            <option value="network">নেটওয়ার্ক টুলস</option>
+                                            <option value="security">সিকিউরিটি টুলস</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">অটো-সেভ ইন্টারভাল (সেকেন্ড)</label>
+                                        <input type="number" class="form-control" id="autoSaveInterval" value="30" min="5" max="300">
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="autoFormatCode" checked>
+                                        <label class="form-check-label">কোড সেভ করার সময় অটো ফরম্যাট</label>
+                                    </div>
+                                    <button class="btn btn-primary" id="saveGeneralSettings">সংরক্ষণ করুন</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="securitySettings" class="settings-tab-content">
+                            <div class="admin-card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>সিকিউরিটি সেটিংস</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">সিকিউরিটি লেভেল</label>
+                                        <select class="form-select" id="securityLevel">
+                                            <option value="low">লো</option>
+                                            <option value="medium" selected>মিডিয়াম</option>
+                                            <option value="high">হাই</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="enableCodeValidation" checked>
+                                        <label class="form-check-label">কোড এক্সিকিউট করার আগে ভ্যালিডেশন</label>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="logAllActivities" checked>
+                                        <label class="form-check-label">সকল কার্যক্রম লগ করুন</label>
+                                    </div>
+                                    <button class="btn btn-primary" id="saveSecuritySettings">সংরক্ষণ করুন</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="backupSettings" class="settings-tab-content">
+                            <div class="admin-card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-database me-2"></i>ব্যাকআপ সেটিংস</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">অটো ব্যাকআপ ফ্রিকুয়েন্সি</label>
+                                        <select class="form-select" id="backupFrequency">
+                                            <option value="daily">দৈনিক</option>
+                                            <option value="weekly" selected>সাপ্তাহিক</option>
+                                            <option value="monthly">মাসিক</option>
+                                            <option value="disabled">নিষ্ক্রিয়</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">ব্যাকআপ ফাইল সর্বোচ্চ সংখ্যা</label>
+                                        <input type="number" class="form-control" id="maxBackupFiles" value="10" min="1" max="50">
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="cloudBackup" checked>
+                                        <label class="form-check-label">ক্লাউড ব্যাকআপ সক্ষম করুন</label>
+                                    </div>
+                                    <button class="btn btn-primary" id="saveBackupSettings">সংরক্ষণ করুন</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="appearanceSettings" class="settings-tab-content">
+                            <div class="admin-card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-palette me-2"></i>আপিয়ারেন্স সেটিংস</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">ডিফল্ট থিম</label>
+                                        <select class="form-select" id="defaultTheme">
+                                            <option value="light">লাইট</option>
+                                            <option value="dark">ডার্ক</option>
+                                            <option value="auto">অটো</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">ডিফল্ট ভাষা</label>
+                                        <select class="form-select" id="defaultLanguage">
+                                            <option value="bn" selected>বাংলা</option>
+                                            <option value="en">English</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">কার্ড অ্যানিমেশন</label>
+                                        <select class="form-select" id="cardAnimation">
+                                            <option value="enabled" selected>সক্রিয়</option>
+                                            <option value="disabled">নিষ্ক্রিয়</option>
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-primary" id="saveAppearanceSettings">সংরক্ষণ করুন</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="advancedSettings" class="settings-tab-content">
+                            <div class="admin-card">
+                                <div class="card-header">
+                                    <h5 class="mb-0"><i class="fas fa-microchip me-2"></i>এডভান্সড সেটিংস</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">কনসোল লগ লেভেল</label>
+                                        <select class="form-select" id="logLevel">
+                                            <option value="debug">ডিবাগ</option>
+                                            <option value="info" selected>ইনফো</option>
+                                            <option value="warn">ওয়ার্নিং</option>
+                                            <option value="error">এরর</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">ম্যাক্সিমাম টুলস পার পেজ</label>
+                                        <input type="number" class="form-control" id="maxToolsPerPage" value="12" min="1" max="50">
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="enableExperimental">
+                                        <label class="form-check-label">পরীক্ষামূলক ফিচার সক্ষম করুন</label>
+                                    </div>
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        সতর্কতা: এডভান্সড সেটিংস পরিবর্তন করলে অ্যাপ্লিকেশনে সমস্যা হতে পারে।
+                                    </div>
+                                    <button class="btn btn-primary" id="saveAdvancedSettings">সংরক্ষণ করুন</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1352,7 +1550,7 @@
         </div>
     </div>
 
-    <!-- YouTube ভিডিও মডাল (নতুন) -->
+    <!-- YouTube ভিডিও মডাল -->
     <div class="modal fade" id="youtubeModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
@@ -1418,6 +1616,58 @@
         </div>
     </div>
 
+    <!-- বাল্ক অ্যাকশনস মডাল -->
+    <div class="modal fade" id="bulkActionsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-tasks me-2"></i>বাল্ক অ্যাকশনস
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">সিলেক্ট করা টুলস: <span id="selectedCount">0</span></label>
+                        <div id="selectedToolsList" class="small border rounded p-2" style="max-height: 150px; overflow-y: auto;">
+                            <!-- সিলেক্টেড টুলস লিস্ট -->
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">অ্যাকশন সিলেক্ট করুন</label>
+                        <select class="form-select" id="bulkActionType">
+                            <option value="">-- অ্যাকশন সিলেক্ট করুন --</option>
+                            <option value="export">JSON হিসেবে এক্সপোর্ট</option>
+                            <option value="delete">মুছে ফেলুন</option>
+                            <option value="deactivate">নিষ্ক্রিয় করুন</option>
+                            <option value="activate">সক্রিয় করুন</option>
+                            <option value="change-category">ক্যাটাগরি পরিবর্তন</option>
+                            <option value="add-tags">ট্যাগ যোগ করুন</option>
+                            <option value="backup">ব্যাকআপ তৈরি করুন</option>
+                        </select>
+                    </div>
+                    
+                    <!-- ডাইনামিক অপশনস -->
+                    <div id="bulkActionOptions" style="display: none;">
+                        <!-- এখানে ডাইনামিক কনটেন্ট লোড হবে -->
+                    </div>
+                    
+                    <div class="alert alert-info small">
+                        <i class="fas fa-info-circle me-2"></i>
+                        টুলস সিলেক্ট করতে টুল কার্ডে ক্লিক করুন (মাল্টি-সিলেক্ট সক্ষম)
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">বাতিল</button>
+                    <button type="button" class="btn btn-primary" id="executeBulkAction">
+                        <i class="fas fa-play me-2"></i>এক্সিকিউট করুন
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ফুটার -->
     <footer class="mt-5 py-4 text-center">
         <div class="container">
@@ -1448,37 +1698,8 @@
 
     <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- অথবা এই এক লাইনে সব -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-<script>
-    // PowerShell ভাষা রেজিস্টার করুন
-    hljs.registerLanguage('powershell', function(hljs) {
-        return {
-            aliases: ['ps', 'ps1'],
-            keywords: {
-                keyword: 'function if else foreach while do switch param begin process end throw try catch finally break continue return',
-                built_in: 'Write-Host Write-Output Write-Error Write-Warning Write-Debug Get-ChildItem Get-Content Set-Content Get-Service Stop-Service Start-Service Get-Process Stop-Process Get-EventLog Get-WmiObject Get-CimInstance Test-Path New-Item Remove-Item Copy-Item Move-Item Rename-Item Invoke-WebRequest Invoke-RestMethod ConvertTo-Json ConvertFrom-Json Export-Csv Import-Csv Select-Object Where-Object ForEach-Object Sort-Object Group-Object Measure-Object Format-Table Format-List Format-Wide Get-Help Get-Command Get-Member Get-Variable Set-Variable Get-Alias Set-Alias'
-            },
-            contains: [
-                hljs.HASH_COMMENT_MODE,
-                hljs.QUOTE_STRING_MODE,
-                hljs.APOS_STRING_MODE,
-                {
-                    className: 'variable',
-                    begin: '\\$[A-Za-z_][A-Za-z0-9_]*'
-                },
-                {
-                    className: 'number',
-                    begin: '\\b(0x[0-9a-fA-F]+|\\d+(\\.\\d+)?)'
-                },
-                {
-                    className: 'operator',
-                    begin: '-[a-zA-Z]+'
-                }
-            ]
-        };
-    });
-</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/powershell.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <!-- Main Application Script -->
@@ -1500,7 +1721,9 @@
             executionHistory: [],
             terminalHistory: [],
             terminalHistoryIndex: -1,
-            currentVideo: null
+            currentVideo: null,
+            selectedTools: new Set(),
+            bulkActionMode: false
         };
 
         // YouTube ভিডিও ডেটা
@@ -1509,7 +1732,7 @@
                 id: 1,
                 title: "PowerShell System Information Tutorial",
                 description: "Learn how to get complete system information using PowerShell commands. This tutorial covers Get-ComputerInfo, Get-WmiObject, and other useful system commands.",
-                youtubeId: "YOUR_VIDEO_ID_1", // আপনার YouTube ভিডিও ID দিন
+                youtubeId: "dQw4w9WgXcQ",
                 code: `# সিস্টেম ইনফরমেশন
 Get-ComputerInfo | Format-List *
 Get-WmiObject Win32_OperatingSystem | Select Caption, Version, OSArchitecture
@@ -1525,7 +1748,7 @@ Get-WmiObject Win32_PhysicalMemory | Measure-Object Capacity -Sum | Select @{Nam
                 id: 2,
                 title: "PowerShell Network Troubleshooting",
                 description: "Complete guide to network troubleshooting using PowerShell. Learn how to diagnose network issues, check connectivity, and view network configurations.",
-                youtubeId: "YOUR_VIDEO_ID_2", // আপনার YouTube ভিডিও ID দিন
+                youtubeId: "dQw4w9WgXcQ",
                 code: `# নেটওয়ার্ক ট্রাবলশুটিং
 Test-NetConnection -ComputerName google.com
 Get-NetAdapter | Format-Table Name, Status, LinkSpeed
@@ -1548,7 +1771,7 @@ ipconfig /registerdns`,
                 id: 3,
                 title: "PowerShell Security Scripts",
                 description: "PowerShell scripts for system security checking and improvement. Learn how to check firewall status, user permissions, and Windows updates.",
-                youtubeId: "YOUR_VIDEO_ID_3", // আপনার YouTube ভিডিও ID দিন
+                youtubeId: "dQw4w9WgXcQ",
                 code: `# সিকিউরিটি চেক
 # Firewall status
 Get-NetFirewallProfile | Select-Object Name, Enabled
@@ -1575,7 +1798,7 @@ Get-NetTCPConnection | Where-Object State -eq 'Listen' | Select-Object LocalAddr
                 id: 4,
                 title: "PowerShell File Management",
                 description: "Complete PowerShell tutorial for file and folder management. Learn how to find large files, clean up duplicates, and create automated backups.",
-                youtubeId: "YOUR_VIDEO_ID_4", // আপনার YouTube ভিডিও ID দিন
+                youtubeId: "dQw4w9WgXcQ",
                 code: `# ফাইল ম্যানেজমেন্ট
 # Find large files
 Get-ChildItem -Path C:\\ -Recurse -File -ErrorAction SilentlyContinue | 
@@ -1608,7 +1831,7 @@ Write-Host "ব্যাকআপ সম্পন্ন হয়েছে!" -Fo
                 id: 5,
                 title: "PowerShell Automation Scripts",
                 description: "Automate your daily tasks with PowerShell. Learn how to create scheduled tasks, automatic backups, and cleanup scripts.",
-                youtubeId: "YOUR_VIDEO_ID_5", // আপনার YouTube ভিডিও ID দিন
+                youtubeId: "dQw4w9WgXcQ",
                 code: `# অটোমেশন স্ক্রিপ্ট
 # Automated backup function
 function Backup-Files {
@@ -1670,7 +1893,7 @@ function Create-ScheduledTask {
                 id: 6,
                 title: "PowerShell Monitoring Scripts",
                 description: "Monitor your system performance with PowerShell. Learn how to track CPU, memory, disk usage, and services.",
-                youtubeId: "YOUR_VIDEO_ID_6", // আপনার YouTube ভিডিও ID দিন
+                youtubeId: "dQw4w9WgXcQ",
                 code: `# সিস্টেম মনিটরিং
 # CPU Usage
 Get-Counter -Counter "\\\\Processor(_Total)\\\\% Processor Time" -SampleInterval 1 -MaxSamples 10
@@ -1838,6 +2061,318 @@ foreach (\$disk in \$disks) {
                 
                 this.saveToLocalStorage();
                 this.updateDashboardStats();
+            },
+
+            updateDashboardStats() {
+                document.getElementById('totalTools').textContent = AppState.tools.length;
+                
+                const totalExecutions = AppState.tools.reduce((sum, tool) => sum + (tool.executionCount || 0), 0);
+                document.getElementById('executionCount').textContent = totalExecutions;
+                
+                const activeTools = AppState.tools.filter(tool => tool.isActive).length;
+                document.getElementById('activeTools').textContent = activeTools;
+                
+                const storageSize = JSON.stringify(AppState.tools).length;
+                document.getElementById('storageUsed').textContent = this.formatBytes(storageSize);
+            },
+
+            exportToJSON(data, filename = 'export.json') {
+                const jsonStr = JSON.stringify(data, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        };
+
+        // সেটিংস ম্যানেজার
+        const SettingsManager = {
+            init() {
+                this.loadSettings();
+                this.setupEventListeners();
+            },
+
+            loadSettings() {
+                // Load settings from localStorage or use defaults
+                const defaultSettings = {
+                    general: {
+                        defaultCategory: 'system',
+                        autoSaveInterval: 30,
+                        autoFormatCode: true
+                    },
+                    security: {
+                        securityLevel: 'medium',
+                        enableCodeValidation: true,
+                        logAllActivities: true
+                    },
+                    backup: {
+                        backupFrequency: 'weekly',
+                        maxBackupFiles: 10,
+                        cloudBackup: true
+                    },
+                    appearance: {
+                        defaultTheme: 'light',
+                        defaultLanguage: 'bn',
+                        cardAnimation: 'enabled'
+                    },
+                    advanced: {
+                        logLevel: 'info',
+                        maxToolsPerPage: 12,
+                        enableExperimental: false
+                    }
+                };
+
+                AppState.settings = { ...defaultSettings, ...AppState.settings };
+                
+                // Apply settings
+                this.applySettings();
+            },
+
+            applySettings() {
+                // Apply theme
+                document.documentElement.setAttribute('data-theme', AppState.settings.appearance?.defaultTheme || 'light');
+                
+                // Apply language
+                document.documentElement.lang = AppState.settings.appearance?.defaultLanguage || 'bn';
+                
+                // Update form values
+                this.updateFormValues();
+            },
+
+            updateFormValues() {
+                // General settings
+                if (AppState.settings.general) {
+                    document.getElementById('defaultCategory').value = AppState.settings.general.defaultCategory || 'system';
+                    document.getElementById('autoSaveInterval').value = AppState.settings.general.autoSaveInterval || 30;
+                    document.getElementById('autoFormatCode').checked = AppState.settings.general.autoFormatCode !== false;
+                }
+
+                // Security settings
+                if (AppState.settings.security) {
+                    document.getElementById('securityLevel').value = AppState.settings.security.securityLevel || 'medium';
+                    document.getElementById('enableCodeValidation').checked = AppState.settings.security.enableCodeValidation !== false;
+                    document.getElementById('logAllActivities').checked = AppState.settings.security.logAllActivities !== false;
+                }
+
+                // Backup settings
+                if (AppState.settings.backup) {
+                    document.getElementById('backupFrequency').value = AppState.settings.backup.backupFrequency || 'weekly';
+                    document.getElementById('maxBackupFiles').value = AppState.settings.backup.maxBackupFiles || 10;
+                    document.getElementById('cloudBackup').checked = AppState.settings.backup.cloudBackup !== false;
+                }
+
+                // Appearance settings
+                if (AppState.settings.appearance) {
+                    document.getElementById('defaultTheme').value = AppState.settings.appearance.defaultTheme || 'light';
+                    document.getElementById('defaultLanguage').value = AppState.settings.appearance.defaultLanguage || 'bn';
+                    document.getElementById('cardAnimation').value = AppState.settings.appearance.cardAnimation || 'enabled';
+                }
+
+                // Advanced settings
+                if (AppState.settings.advanced) {
+                    document.getElementById('logLevel').value = AppState.settings.advanced.logLevel || 'info';
+                    document.getElementById('maxToolsPerPage').value = AppState.settings.advanced.maxToolsPerPage || 12;
+                    document.getElementById('enableExperimental').checked = AppState.settings.advanced.enableExperimental || false;
+                }
+            },
+
+            setupEventListeners() {
+                // Settings tab navigation
+                document.querySelectorAll('[data-settings-tab]').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const tabId = tab.dataset.settingsTab;
+                        
+                        // Update active tab
+                        document.querySelectorAll('[data-settings-tab]').forEach(t => {
+                            t.classList.remove('active');
+                        });
+                        tab.classList.add('active');
+                        
+                        // Show corresponding content
+                        document.querySelectorAll('.settings-tab-content').forEach(content => {
+                            content.classList.remove('active');
+                        });
+                        document.getElementById(tabId + 'Settings').classList.add('active');
+                    });
+                });
+
+                // Save buttons
+                document.getElementById('saveGeneralSettings').addEventListener('click', () => this.saveGeneralSettings());
+                document.getElementById('saveSecuritySettings').addEventListener('click', () => this.saveSecuritySettings());
+                document.getElementById('saveBackupSettings').addEventListener('click', () => this.saveBackupSettings());
+                document.getElementById('saveAppearanceSettings').addEventListener('click', () => this.saveAppearanceSettings());
+                document.getElementById('saveAdvancedSettings').addEventListener('click', () => this.saveAdvancedSettings());
+            },
+
+            saveGeneralSettings() {
+                AppState.settings.general = {
+                    defaultCategory: document.getElementById('defaultCategory').value,
+                    autoSaveInterval: parseInt(document.getElementById('autoSaveInterval').value),
+                    autoFormatCode: document.getElementById('autoFormatCode').checked
+                };
+                
+                Utils.saveToLocalStorage();
+                Utils.showNotification('সাধারণ সেটিংস সংরক্ষণ করা হয়েছে', 'success');
+            },
+
+            saveSecuritySettings() {
+                AppState.settings.security = {
+                    securityLevel: document.getElementById('securityLevel').value,
+                    enableCodeValidation: document.getElementById('enableCodeValidation').checked,
+                    logAllActivities: document.getElementById('logAllActivities').checked
+                };
+                
+                Utils.saveToLocalStorage();
+                Utils.showNotification('সিকিউরিটি সেটিংস সংরক্ষণ করা হয়েছে', 'success');
+            },
+
+            saveBackupSettings() {
+                AppState.settings.backup = {
+                    backupFrequency: document.getElementById('backupFrequency').value,
+                    maxBackupFiles: parseInt(document.getElementById('maxBackupFiles').value),
+                    cloudBackup: document.getElementById('cloudBackup').checked
+                };
+                
+                Utils.saveToLocalStorage();
+                Utils.showNotification('ব্যাকআপ সেটিংস সংরক্ষণ করা হয়েছে', 'success');
+            },
+
+            saveAppearanceSettings() {
+                AppState.settings.appearance = {
+                    defaultTheme: document.getElementById('defaultTheme').value,
+                    defaultLanguage: document.getElementById('defaultLanguage').value,
+                    cardAnimation: document.getElementById('cardAnimation').value
+                };
+                
+                // Apply theme immediately
+                document.documentElement.setAttribute('data-theme', AppState.settings.appearance.defaultTheme);
+                localStorage.setItem('theme', AppState.settings.appearance.defaultTheme);
+                
+                Utils.saveToLocalStorage();
+                Utils.showNotification('আপিয়ারেন্স সেটিংস সংরক্ষণ করা হয়েছে', 'success');
+            },
+
+            saveAdvancedSettings() {
+                AppState.settings.advanced = {
+                    logLevel: document.getElementById('logLevel').value,
+                    maxToolsPerPage: parseInt(document.getElementById('maxToolsPerPage').value),
+                    enableExperimental: document.getElementById('enableExperimental').checked
+                };
+                
+                Utils.saveToLocalStorage();
+                Utils.showNotification('এডভান্সড সেটিংস সংরক্ষণ করা হয়েছে', 'success');
+            }
+        };
+
+        // টেমপ্লেট ম্যানেজার
+        const TemplateManager = {
+            init() {
+                if (AppState.templates.length === 0) {
+                    AppState.templates = defaultTemplates;
+                    Utils.saveToLocalStorage();
+                }
+                this.renderTemplates();
+            },
+
+            renderTemplates() {
+                const container = document.getElementById('templateLibrary');
+                if (!container) return;
+
+                container.innerHTML = AppState.templates.map(template => `
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="tool-card h-100">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="mb-0 fw-bold">${template.name}</h6>
+                                <span class="badge bg-primary">${template.popularity}%</span>
+                            </div>
+                            <p class="small text-muted mb-3">${template.description}</p>
+                            <div class="tag-system mb-3">
+                                ${template.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-sm btn-outline-primary" onclick="TemplateManager.useTemplate(${template.id})">
+                                    <i class="fas fa-plus me-1"></i>ব্যবহার করুন
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="TemplateManager.previewTemplate(${template.id})">
+                                    <i class="fas fa-eye me-1"></i>প্রিভিউ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            useTemplate(templateId) {
+                const template = AppState.templates.find(t => t.id === templateId);
+                if (template) {
+                    document.getElementById('toolName').value = template.name + ' - কাস্টম';
+                    document.getElementById('toolCategory').value = template.category;
+                    document.getElementById('toolDescription').value = template.description;
+                    document.getElementById('toolCode').value = template.code;
+                    
+                    // ট্যাগস সেট করুন
+                    AppState.selectedTags = [...template.tags];
+                    this.renderSelectedTags();
+                    
+                    Utils.showNotification(`"${template.name}" টেমপ্লেট লোড করা হয়েছে`, 'success');
+                    
+                    // টুলস পেজে যান
+                    navigateToPage('tools');
+                    document.getElementById('toolCode').focus();
+                }
+            },
+
+            previewTemplate(templateId) {
+                const template = AppState.templates.find(t => t.id === templateId);
+                if (template) {
+                    Swal.fire({
+                        title: template.name,
+                        html: `
+                            <div class="text-start">
+                                <p><strong>বর্ণনা:</strong> ${template.description}</p>
+                                <p><strong>ক্যাটাগরি:</strong> ${template.category}</p>
+                                <div class="mb-3">
+                                    <strong>ট্যাগস:</strong><br>
+                                    <div class="tag-system mt-1">
+                                        ${template.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                                    </div>
+                                </div>
+                                <pre class="bg-dark text-light p-3 rounded"><code>${template.code}</code></pre>
+                            </div>
+                        `,
+                        icon: 'info',
+                        confirmButtonText: 'ব্যবহার করুন',
+                        showCancelButton: true,
+                        cancelButtonText: 'বন্ধ করুন'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.useTemplate(templateId);
+                        }
+                    });
+                }
+            },
+
+            renderSelectedTags() {
+                const container = document.getElementById('selectedTags');
+                if (!container) return;
+
+                container.innerHTML = AppState.selectedTags.map(tag => `
+                    <span class="tag">
+                        ${tag}
+                        <i class="fas fa-times ms-2" onclick="TemplateManager.removeTag('${tag}')"></i>
+                    </span>
+                `).join('');
+            },
+
+            removeTag(tag) {
+                AppState.selectedTags = AppState.selectedTags.filter(t => t !== tag);
+                this.renderSelectedTags();
             }
         };
 
@@ -2035,7 +2570,7 @@ foreach (\$disk in \$disks) {
                 AppState.tools.unshift(toolData);
                 Utils.saveToLocalStorage();
                 ToolManager.renderToolsGrid();
-                ToolManager.updateDashboardStats();
+                Utils.updateDashboardStats();
                 
                 Utils.logActivity('ভিডিও থেকে টুল যোগ', AppState.currentVideo.title, 'success');
                 Utils.showNotification('ভিডিওর কোড টুলসে যোগ করা হয়েছে!', 'success');
@@ -2045,109 +2580,336 @@ foreach (\$disk in \$disks) {
             }
         };
 
-        // টেমপ্লেট ম্যানেজার
-        const TemplateManager = {
+        // বাল্ক অ্যাকশন ম্যানেজার
+        const BulkActionManager = {
             init() {
-                if (AppState.templates.length === 0) {
-                    AppState.templates = defaultTemplates;
-                    Utils.saveToLocalStorage();
-                }
-                this.renderTemplates();
+                this.setupEventListeners();
             },
 
-            renderTemplates() {
-                const container = document.getElementById('templateLibrary');
-                if (!container) return;
+            setupEventListeners() {
+                // Bulk action button
+                document.getElementById('bulkActionsBtn').addEventListener('click', () => {
+                    this.openBulkActionsModal();
+                });
 
-                container.innerHTML = AppState.templates.map(template => `
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="tool-card h-100">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h6 class="mb-0 fw-bold">${template.name}</h6>
-                                <span class="badge bg-primary">${template.popularity}%</span>
-                            </div>
-                            <p class="small text-muted mb-3">${template.description}</p>
-                            <div class="tag-system mb-3">
-                                ${template.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button class="btn btn-sm btn-outline-primary" onclick="TemplateManager.useTemplate(${template.id})">
-                                    <i class="fas fa-plus me-1"></i>ব্যবহার করুন
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary" onclick="TemplateManager.previewTemplate(${template.id})">
-                                    <i class="fas fa-eye me-1"></i>প্রিভিউ
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
+                // Bulk action execution
+                document.getElementById('executeBulkAction').addEventListener('click', () => {
+                    this.executeBulkAction();
+                });
+
+                // Bulk action type change
+                document.getElementById('bulkActionType').addEventListener('change', (e) => {
+                    this.showActionOptions(e.target.value);
+                });
             },
 
-            useTemplate(templateId) {
-                const template = AppState.templates.find(t => t.id === templateId);
-                if (template) {
-                    document.getElementById('toolName').value = template.name + ' - কাস্টম';
-                    document.getElementById('toolCategory').value = template.category;
-                    document.getElementById('toolDescription').value = template.description;
-                    document.getElementById('toolCode').value = template.code;
+            openBulkActionsModal() {
+                this.updateSelectedToolsList();
+                
+                const modal = new bootstrap.Modal(document.getElementById('bulkActionsModal'));
+                modal.show();
+            },
+
+            updateSelectedToolsList() {
+                const container = document.getElementById('selectedToolsList');
+                const countElement = document.getElementById('selectedCount');
+                
+                if (AppState.selectedTools.size === 0) {
+                    container.innerHTML = '<p class="text-muted mb-0">কোনো টুল সিলেক্ট করা নেই</p>';
+                    countElement.textContent = '0';
+                } else {
+                    const toolsList = Array.from(AppState.selectedTools).map(toolId => {
+                        const tool = AppState.tools.find(t => t.id === toolId);
+                        return tool ? `<div>• ${tool.name}</div>` : '';
+                    }).join('');
                     
-                    // ট্যাগস সেট করুন
-                    AppState.selectedTags = [...template.tags];
-                    this.renderSelectedTags();
-                    
-                    Utils.showNotification(`"${template.name}" টেমপ্লেট লোড করা হয়েছে`, 'success');
-                    
-                    // টুলস পেজে যান
-                    navigateToPage('tools');
-                    document.getElementById('toolCode').focus();
+                    container.innerHTML = toolsList;
+                    countElement.textContent = AppState.selectedTools.size;
                 }
             },
 
-            previewTemplate(templateId) {
-                const template = AppState.templates.find(t => t.id === templateId);
-                if (template) {
-                    Swal.fire({
-                        title: template.name,
-                        html: `
-                            <div class="text-start">
-                                <p><strong>বর্ণনা:</strong> ${template.description}</p>
-                                <p><strong>ক্যাটাগরি:</strong> ${template.category}</p>
-                                <div class="mb-3">
-                                    <strong>ট্যাগস:</strong><br>
-                                    <div class="tag-system mt-1">
-                                        ${template.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                                    </div>
-                                </div>
-                                <pre class="bg-dark text-light p-3 rounded"><code>${template.code}</code></pre>
+            showActionOptions(actionType) {
+                const container = document.getElementById('bulkActionOptions');
+                container.innerHTML = '';
+                container.style.display = 'none';
+
+                if (!actionType) return;
+
+                let optionsHtml = '';
+                
+                switch(actionType) {
+                    case 'change-category':
+                        optionsHtml = `
+                            <div class="mb-3">
+                                <label class="form-label">নতুন ক্যাটাগরি</label>
+                                <select class="form-select" id="newCategory">
+                                    <option value="system">সিস্টেম টুলস</option>
+                                    <option value="network">নেটওয়ার্ক টুলস</option>
+                                    <option value="security">সিকিউরিটি টুলস</option>
+                                    <option value="files">ফাইল ম্যানেজমেন্ট</option>
+                                    <option value="automation">অটোমেশন</option>
+                                </select>
                             </div>
-                        `,
-                        icon: 'info',
-                        confirmButtonText: 'ব্যবহার করুন',
-                        showCancelButton: true,
-                        cancelButtonText: 'বন্ধ করুন'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            this.useTemplate(templateId);
-                        }
-                    });
+                        `;
+                        break;
+                        
+                    case 'add-tags':
+                        optionsHtml = `
+                            <div class="mb-3">
+                                <label class="form-label">ট্যাগস (কমা দিয়ে আলাদা করুন)</label>
+                                <input type="text" class="form-control" id="newTags" 
+                                       placeholder="system, windows, automation">
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'export':
+                        optionsHtml = `
+                            <div class="mb-3">
+                                <label class="form-label">ফাইল নাম</label>
+                                <input type="text" class="form-control" id="exportFileName" 
+                                       value="tools_export.json">
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="includeMetadata" checked>
+                                <label class="form-check-label">মেটাডেটা অন্তর্ভুক্ত করুন</label>
+                            </div>
+                        `;
+                        break;
+                        
+                    case 'backup':
+                        optionsHtml = `
+                            <div class="mb-3">
+                                <label class="form-label">ব্যাকআপ নাম</label>
+                                <input type="text" class="form-control" id="bulkBackupName" 
+                                       value="bulk_backup_${new Date().toISOString().split('T')[0]}">
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="compressBackup" checked>
+                                <label class="form-check-label">কম্প্রেস ব্যাকআপ</label>
+                            </div>
+                        `;
+                        break;
+                }
+
+                if (optionsHtml) {
+                    container.innerHTML = optionsHtml;
+                    container.style.display = 'block';
                 }
             },
 
-            renderSelectedTags() {
-                const container = document.getElementById('selectedTags');
-                if (!container) return;
+            executeBulkAction() {
+                const actionType = document.getElementById('bulkActionType').value;
+                
+                if (!actionType) {
+                    Utils.showNotification('অ্যাকশন সিলেক্ট করুন', 'warning');
+                    return;
+                }
 
-                container.innerHTML = AppState.selectedTags.map(tag => `
-                    <span class="tag">
-                        ${tag}
-                        <i class="fas fa-times ms-2" onclick="TemplateManager.removeTag('${tag}')"></i>
-                    </span>
-                `).join('');
+                if (AppState.selectedTools.size === 0) {
+                    Utils.showNotification('প্রথমে টুলস সিলেক্ট করুন', 'warning');
+                    return;
+                }
+
+                switch(actionType) {
+                    case 'export':
+                        this.exportSelectedTools();
+                        break;
+                    case 'delete':
+                        this.deleteSelectedTools();
+                        break;
+                    case 'deactivate':
+                        this.deactivateSelectedTools();
+                        break;
+                    case 'activate':
+                        this.activateSelectedTools();
+                        break;
+                    case 'change-category':
+                        this.changeCategoryOfSelectedTools();
+                        break;
+                    case 'add-tags':
+                        this.addTagsToSelectedTools();
+                        break;
+                    case 'backup':
+                        this.backupSelectedTools();
+                        break;
+                }
             },
 
-            removeTag(tag) {
-                AppState.selectedTags = AppState.selectedTags.filter(t => t !== tag);
-                this.renderSelectedTags();
+            exportSelectedTools() {
+                const toolsToExport = AppState.tools.filter(tool => 
+                    AppState.selectedTools.has(tool.id)
+                );
+                
+                const includeMetadata = document.getElementById('includeMetadata')?.checked || false;
+                let exportData = toolsToExport;
+                
+                if (!includeMetadata) {
+                    exportData = toolsToExport.map(({ id, executionCount, lastExecuted, ...rest }) => rest);
+                }
+                
+                const filename = document.getElementById('exportFileName')?.value || 'tools_export.json';
+                Utils.exportToJSON(exportData, filename);
+                
+                Utils.showNotification(`${toolsToExport.length} টি টুল এক্সপোর্ট করা হয়েছে`, 'success');
+                this.closeModal();
+            },
+
+            deleteSelectedTools() {
+                Swal.fire({
+                    title: 'আপনি কি নিশ্চিত?',
+                    text: `${AppState.selectedTools.size} টি টুল মুছে ফেলা হবে!`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'হ্যাঁ, মুছুন!',
+                    cancelButtonText: 'বাতিল'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const originalCount = AppState.tools.length;
+                        AppState.tools = AppState.tools.filter(tool => 
+                            !AppState.selectedTools.has(tool.id)
+                        );
+                        
+                        const deletedCount = originalCount - AppState.tools.length;
+                        AppState.selectedTools.clear();
+                        
+                        Utils.saveToLocalStorage();
+                        ToolManager.renderToolsGrid();
+                        Utils.updateDashboardStats();
+                        
+                        Utils.logActivity('বাল্ক টুল মুছে ফেলা', '', 'warning', `${deletedCount} টি টুল`);
+                        Utils.showNotification(`${deletedCount} টি টুল মুছে ফেলা হয়েছে!`, 'success');
+                        this.closeModal();
+                    }
+                });
+            },
+
+            deactivateSelectedTools() {
+                AppState.tools.forEach(tool => {
+                    if (AppState.selectedTools.has(tool.id)) {
+                        tool.isActive = false;
+                    }
+                });
+                
+                Utils.saveToLocalStorage();
+                ToolManager.renderToolsGrid();
+                
+                Utils.logActivity('বাল্ক টুল নিষ্ক্রিয়', '', 'info', `${AppState.selectedTools.size} টি টুল`);
+                Utils.showNotification(`${AppState.selectedTools.size} টি টুল নিষ্ক্রিয় করা হয়েছে`, 'success');
+                this.closeModal();
+            },
+
+            activateSelectedTools() {
+                AppState.tools.forEach(tool => {
+                    if (AppState.selectedTools.has(tool.id)) {
+                        tool.isActive = true;
+                    }
+                });
+                
+                Utils.saveToLocalStorage();
+                ToolManager.renderToolsGrid();
+                
+                Utils.logActivity('বাল্ক টুল সক্রিয়', '', 'info', `${AppState.selectedTools.size} টি টুল`);
+                Utils.showNotification(`${AppState.selectedTools.size} টি টুল সক্রিয় করা হয়েছে`, 'success');
+                this.closeModal();
+            },
+
+            changeCategoryOfSelectedTools() {
+                const newCategory = document.getElementById('newCategory').value;
+                
+                AppState.tools.forEach(tool => {
+                    if (AppState.selectedTools.has(tool.id)) {
+                        tool.category = newCategory;
+                        tool.updatedAt = new Date().toISOString();
+                    }
+                });
+                
+                Utils.saveToLocalStorage();
+                ToolManager.renderToolsGrid();
+                
+                Utils.logActivity('বাল্ক টুল ক্যাটাগরি পরিবর্তন', '', 'info', 
+                    `${AppState.selectedTools.size} টি টুল → ${newCategory}`);
+                Utils.showNotification(`${AppState.selectedTools.size} টি টুলের ক্যাটাগরি পরিবর্তন করা হয়েছে`, 'success');
+                this.closeModal();
+            },
+
+            addTagsToSelectedTools() {
+                const tagsInput = document.getElementById('newTags').value;
+                const newTags = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag);
+                
+                if (newTags.length === 0) {
+                    Utils.showNotification('অন্তত একটি ট্যাগ লিখুন', 'warning');
+                    return;
+                }
+                
+                AppState.tools.forEach(tool => {
+                    if (AppState.selectedTools.has(tool.id)) {
+                        // Add unique tags
+                        newTags.forEach(tag => {
+                            if (!tool.tags.includes(tag)) {
+                                tool.tags.push(tag);
+                            }
+                        });
+                        tool.updatedAt = new Date().toISOString();
+                    }
+                });
+                
+                Utils.saveToLocalStorage();
+                ToolManager.renderToolsGrid();
+                
+                Utils.logActivity('বাল্ক টুলে ট্যাগ যোগ', '', 'info', 
+                    `${AppState.selectedTools.size} টি টুল → ${newTags.join(', ')}`);
+                Utils.showNotification(`${AppState.selectedTools.size} টি টুলে ট্যাগ যোগ করা হয়েছে`, 'success');
+                this.closeModal();
+            },
+
+            backupSelectedTools() {
+                const backupName = document.getElementById('bulkBackupName').value;
+                const compress = document.getElementById('compressBackup')?.checked || false;
+                
+                const toolsToBackup = AppState.tools.filter(tool => 
+                    AppState.selectedTools.has(tool.id)
+                );
+                
+                const backupData = {
+                    name: backupName,
+                    date: new Date().toISOString(),
+                    tools: toolsToBackup,
+                    metadata: {
+                        totalTools: toolsToBackup.length,
+                        compress: compress
+                    }
+                };
+                
+                Utils.exportToJSON(backupData, `${backupName}.json`);
+                
+                Utils.logActivity('বাল্ক ব্যাকআপ তৈরি', '', 'success', 
+                    `${toolsToBackup.length} টি টুল`);
+                Utils.showNotification(`${toolsToBackup.length} টি টুলের ব্যাকআপ তৈরি করা হয়েছে`, 'success');
+                this.closeModal();
+            },
+
+            closeModal() {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('bulkActionsModal'));
+                modal.hide();
+                AppState.selectedTools.clear();
+                ToolManager.renderToolsGrid();
+            },
+
+            toggleToolSelection(toolId) {
+                if (AppState.selectedTools.has(toolId)) {
+                    AppState.selectedTools.delete(toolId);
+                } else {
+                    AppState.selectedTools.add(toolId);
+                }
+                
+                // Update UI
+                const toolCard = document.querySelector(`[data-tool-id="${toolId}"]`);
+                if (toolCard) {
+                    toolCard.classList.toggle('selected', AppState.selectedTools.has(toolId));
+                }
             }
         };
 
@@ -2156,7 +2918,7 @@ foreach (\$disk in \$disks) {
             init() {
                 this.setupEventListeners();
                 this.renderToolsGrid();
-                this.updateDashboardStats();
+                Utils.updateDashboardStats();
             },
 
             setupEventListeners() {
@@ -2274,7 +3036,7 @@ foreach (\$disk in \$disks) {
 
                 this.resetForm();
                 this.renderToolsGrid();
-                this.updateDashboardStats();
+                Utils.updateDashboardStats();
 
                 Utils.showNotification(
                     AppState.currentToolId ? 'টুল আপডেট করা হয়েছে!' : 'নতুন টুল যোগ করা হয়েছে!',
@@ -2340,7 +3102,7 @@ foreach (\$disk in \$disks) {
                         AppState.tools = AppState.tools.filter(t => t.id !== toolId);
                         Utils.saveToLocalStorage();
                         this.renderToolsGrid();
-                        this.updateDashboardStats();
+                        Utils.updateDashboardStats();
                         
                         Utils.logActivity('টুল মুছে ফেলা', toolName, 'warning');
                         Utils.showNotification('টুল মুছে ফেলা হয়েছে!', 'success');
@@ -2390,7 +3152,7 @@ foreach (\$disk in \$disks) {
                         `;
                         
                         Utils.logActivity('টুল এক্সিকিউট', tool.name, 'success');
-                        this.updateDashboardStats();
+                        Utils.updateDashboardStats();
                     }
                 }, 100);
             },
@@ -2655,7 +3417,14 @@ foreach (\$disk in \$disks) {
                 } else {
                     container.innerHTML = paginatedTools.map(tool => `
                         <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="tool-card h-100">
+                            <div class="tool-card h-100 ${AppState.bulkActionMode ? 'selectable' : ''}" 
+                                 data-tool-id="${tool.id}"
+                                 ${AppState.bulkActionMode ? 'onclick="BulkActionManager.toggleToolSelection(\'' + tool.id + '\')"' : ''}>
+                                ${AppState.bulkActionMode ? `
+                                    <div class="selection-checkbox">
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    </div>
+                                ` : ''}
                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                     <h6 class="mb-0 fw-bold">${tool.name}</h6>
                                     <span class="badge bg-${tool.isActive ? 'success' : 'secondary'}">
@@ -2743,22 +3512,6 @@ foreach (\$disk in \$disks) {
                 
                 document.getElementById('prevPage').disabled = AppState.currentPageNumber === 1;
                 document.getElementById('nextPage').disabled = AppState.currentPageNumber === totalPages || totalPages === 0;
-            },
-
-            updateDashboardStats() {
-                document.getElementById('totalTools').textContent = AppState.tools.length;
-                
-                const totalExecutions = AppState.tools.reduce((sum, tool) => sum + (tool.executionCount || 0), 0);
-                document.getElementById('executionCount').textContent = totalExecutions;
-                
-                const activeTools = AppState.tools.filter(tool => tool.isActive).length;
-                document.getElementById('activeTools').textContent = activeTools;
-                
-                const storageSize = JSON.stringify(AppState.tools).length;
-                document.getElementById('storageUsed').textContent = Utils.formatBytes(storageSize);
-                
-                this.updateRecentTools();
-                this.updateActivityTable();
             },
 
             updateRecentTools() {
@@ -2966,15 +3719,18 @@ foreach (\$disk in \$disks) {
 
         // অ্যাপ ইনিশিয়ালাইজেশন
         document.addEventListener('DOMContentLoaded', function() {
+            // সেট থিম এবং বছর
             document.documentElement.setAttribute('data-theme', AppState.theme);
             document.getElementById('currentYear').textContent = new Date().getFullYear();
             
+            // থিম টগল ইভেন্ট
             document.getElementById('themeToggle').addEventListener('click', () => {
                 AppState.theme = AppState.theme === 'light' ? 'dark' : 'light';
                 document.documentElement.setAttribute('data-theme', AppState.theme);
                 localStorage.setItem('theme', AppState.theme);
             });
             
+            // পেজ নেভিগেশন
             document.querySelectorAll('[data-page]').forEach(link => {
                 link.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -2983,6 +3739,18 @@ foreach (\$disk in \$disks) {
                 });
             });
             
+            // ভাষা পরিবর্তন
+            document.querySelectorAll('[data-lang]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const lang = e.target.dataset.lang;
+                    AppState.language = lang;
+                    localStorage.setItem('language', lang);
+                    Utils.showNotification(`ভাষা পরিবর্তন করা হয়েছে: ${lang === 'bn' ? 'বাংলা' : 'English'}`, 'success');
+                });
+            });
+            
+            // দ্রুত অ্যাকশন বাটন
             document.getElementById('quickAddTool').addEventListener('click', () => {
                 navigateToPage('tools');
             });
@@ -3000,516 +3768,25 @@ foreach (\$disk in \$disks) {
                 backupModal.show();
             });
             
-            document.getElementById('emergencyStop').addEventListener('click', () => {
-                Swal.fire({
-                    title: 'জরুরি স্টপ',
-                    text: 'সকল চলমান প্রক্রিয়া বন্ধ করা হবে। আপনি কি নিশ্চিত?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'হ্যাঁ, বন্ধ করুন!',
-                    cancelButtonText: 'বাতিল'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Utils.showNotification('সকল প্রক্রিয়া বন্ধ করা হয়েছে', 'success');
-                        Utils.logActivity('জরুরি স্টপ', '', 'warning', 'সমস্ত প্রক্রিয়া বন্ধ');
-                    }
-                });
-            });
-            
-            ToolManager.init();
-            TerminalManager.init();
-            TemplateManager.init();
-            YouTubeManager.init();
-            
-            setInterval(() => {
-                Utils.saveToLocalStorage();
-            }, 30000);
-            
-            Utils.showNotification('PowerScript Pro প্রস্তুত!', 'success');
-        });
-
-        // পেজ নেভিগেশন
-        function navigateToPage(page) {
-            document.querySelectorAll('.page-content').forEach(p => {
-                p.style.display = 'none';
-            });
-            
-            document.getElementById(page + 'Page').style.display = 'block';
-            
-            document.querySelectorAll('[data-page]').forEach(link => {
-                link.classList.remove('active');
-            });
-            document.querySelector(`[data-page="${page}"]`).classList.add('active');
-            
-            AppState.currentPage = page;
-        }
-
-        // গ্লোবাল ফাংশনস
-        window.TemplateManager = TemplateManager;
-        window.ToolManager = ToolManager;
-        window.YouTubeManager = YouTubeManager;
-        window.navigateToPage = navigateToPage;
-    </script>
-	<!-- শুধু এই একটি মডাল রাখুন (এটা শেষের টা) -->
-<div class="modal fade" id="bulkActionsModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-tasks me-2"></i>বাল্ক অ্যাকশনস
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label fw-bold">সিলেক্ট করা টুলস: <span id="selectedCount">0</span></label>
-                    <div id="selectedToolsList" class="small border rounded p-2" style="max-height: 150px; overflow-y: auto;">
-                        <!-- সিলেক্টেড টুলস লিস্ট -->
-                    </div>
-                </div>
+            // ব্যাকআপ মডাল
+            document.getElementById('createBackup').addEventListener('click', () => {
+                const backupName = document.getElementById('backupName').value;
+                const backupType = document.getElementById('backupType').value;
+                const autoBackup = document.getElementById('autoBackup').checked;
                 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">অ্যাকশন সিলেক্ট করুন</label>
-                    <select class="form-select" id="bulkActionType">
-                        <option value="">-- অ্যাকশন সিলেক্ট করুন --</option>
-                        <option value="export">JSON হিসেবে এক্সপোর্ট</option>
-                        <option value="delete">মুছে ফেলুন</option>
-                        <option value="deactivate">নিষ্ক্রিয় করুন</option>
-                        <option value="activate">সক্রিয় করুন</option>
-                        <option value="change-category">ক্যাটাগরি পরিবর্তন</option>
-                        <option value="add-tags">ট্যাগ যোগ করুন</option>
-                        <option value="backup">ব্যাকআপ তৈরি করুন</option>
-                    </select>
-                </div>
+                Utils.showNotification(`${backupName} ব্যাকআপ তৈরি করা হচ্ছে...`, 'info');
                 
-                <!-- ডাইনামিক অপশনস -->
-                <div id="bulkActionOptions" style="display: none;">
-                    <!-- এখানে ডাইনামিক কনটেন্ট লোড হবে -->
-                </div>
-                
-                <div class="alert alert-info small">
-                    <i class="fas fa-info-circle me-2"></i>
-                    টুলস সিলেক্ট করতে টুল কার্ডে ক্লিক করুন (মাল্টি-সিলেক্ট সক্ষম)
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">বাতিল</button>
-                <button type="button" class="btn btn-primary" id="executeBulkAction">
-                    <i class="fas fa-play me-2"></i>এক্সিকিউট করুন
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PowerScript Pro - পেশাদার PowerShell টুলস ম্যানেজমেন্ট</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/vs2015.min.css">
-    <style>
-        /* ... existing CSS ... */
-    </style>
-</head>
-<body>
-    <!-- ... existing HTML ... -->
-    
-    <!-- JavaScript Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-    <!-- PowerShell ভাষার জন্য যোগ করুন -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/powershell.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <!-- Main Application Script -->
-    <script>
-        // অ্যাপ্লিকেশন স্টেট
-        const AppState = {
-            currentPage: 'dashboard',
-            theme: localStorage.getItem('theme') || 'light',
-            language: localStorage.getItem('language') || 'bn',
-            tools: JSON.parse(localStorage.getItem('powershellTools')) || [],
-            templates: JSON.parse(localStorage.getItem('powerShellTemplates')) || [],
-            settings: JSON.parse(localStorage.getItem('appSettings')) || {},
-            activityLog: JSON.parse(localStorage.getItem('activityLog')) || [],
-            currentToolId: null,
-            selectedTags: [],
-            searchQuery: '',
-            currentPageNumber: 1,
-            itemsPerPage: 9,
-            executionHistory: [],
-            terminalHistory: [],
-            terminalHistoryIndex: -1,
-            currentVideo: null
-        };
-
-        // ইউটিলিটি ফাংশন
-        const Utils = {
-            showLoading() {
-                document.getElementById('loadingSpinner').style.display = 'flex';
-            },
-
-            hideLoading() {
-                document.getElementById('loadingSpinner').style.display = 'none';
-            },
-
-            showNotification(message, type = 'info', duration = 5000) {
-                const notification = document.createElement('div');
-                notification.className = `alert alert-${type} notification alert-dismissible fade show`;
-                notification.innerHTML = `
-                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
-                    ${message}
-                    <button type="button" class="btn-close btn-sm" onclick="this.parentElement.remove()"></button>
-                `;
-                
-                document.getElementById('notificationArea').appendChild(notification);
-                
+                // Simulate backup creation
                 setTimeout(() => {
-                    if (notification.parentElement) {
-                        notification.remove();
-                    }
-                }, duration);
-            },
-
-            formatBytes(bytes, decimals = 2) {
-                if (bytes === 0) return '0 Bytes';
-                const k = 1024;
-                const dm = decimals < 0 ? 0 : decimals;
-                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-            },
-
-            generateId() {
-                return Date.now().toString(36) + Math.random().toString(36).substr(2);
-            },
-
-            debounce(func, wait) {
-                let timeout;
-                return function executedFunction(...args) {
-                    const later = () => {
-                        clearTimeout(timeout);
-                        func(...args);
-                    };
-                    clearTimeout(timeout);
-                    timeout = setTimeout(later, wait);
-                };
-            },
-
-            saveToLocalStorage() {
-                localStorage.setItem('powershellTools', JSON.stringify(AppState.tools));
-                localStorage.setItem('powerShellTemplates', JSON.stringify(AppState.templates));
-                localStorage.setItem('appSettings', JSON.stringify(AppState.settings));
-                localStorage.setItem('activityLog', JSON.stringify(AppState.activityLog));
-            },
-
-            logActivity(action, toolName = '', status = 'success', details = '') {
-                const activity = {
-                    id: this.generateId(),
-                    timestamp: new Date().toISOString(),
-                    action,
-                    toolName,
-                    status,
-                    details,
-                    duration: 0
-                };
-                
-                AppState.activityLog.unshift(activity);
-                if (AppState.activityLog.length > 100) {
-                    AppState.activityLog.pop();
-                }
-                
-                this.saveToLocalStorage();
-                
-                // Dashboard stats আপডেট করুন
-                if (typeof ToolManager !== 'undefined' && typeof ToolManager.updateDashboardStats === 'function') {
-                    ToolManager.updateDashboardStats();
-                }
-            }
-        };
-
-        // ... existing YouTubeVideos, defaultTemplates, predefinedTags ...
-
-        // YouTube Manager
-        const YouTubeManager = {
-            init() {
-                this.setupEventListeners();
-                this.renderVideoGallery();
-            },
-            
-            setupEventListeners() {
-                // ভিডিও সার্চ
-                document.getElementById('videoSearch').addEventListener('input', Utils.debounce(() => {
-                    this.renderVideoGallery();
-                }, 300));
-                
-                // ক্যাটাগরি ফিল্টার
-                document.getElementById('videoCategoryFilter').addEventListener('change', () => {
-                    this.renderVideoGallery();
-                });
-                
-                // রিফ্রেশ বাটন
-                document.getElementById('refreshVideos').addEventListener('click', () => {
-                    this.renderVideoGallery();
-                    Utils.showNotification('ভিডিও গ্যালারি রিফ্রেশ করা হয়েছে', 'success');
-                });
-                
-                // কোড কপি বাটন
-                document.getElementById('copyCodeBtn').addEventListener('click', () => {
-                    this.copyVideoCode();
-                });
-                
-                // PowerShell এ খুলুন বাটন
-                document.getElementById('openPsBtn').addEventListener('click', () => {
-                    this.openInPowerShell();
-                });
-                
-                // টুলসে যোগ করুন বাটন
-                document.getElementById('addToToolsBtn').addEventListener('click', () => {
-                    this.addVideoToTools();
-                });
-            },
-            
-            renderVideoGallery() {
-                const gallery = document.getElementById('videoGallery');
-                const videos = this.getFilteredVideos();
-                
-                gallery.innerHTML = videos.map(video => `
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="video-gallery-card" onclick="YouTubeManager.openVideo(${video.id})">
-                            <div class="video-thumbnail">
-                                <i class="fab fa-youtube"></i>
-                            </div>
-                            <div class="video-info">
-                                <div class="video-title">${video.title}</div>
-                                <div class="video-meta">
-                                    <span><i class="far fa-clock me-1"></i> ${video.duration}</span>
-                                    <span><i class="far fa-eye me-1"></i> ${video.views}</span>
-                                </div>
-                                <div class="tag-system">
-                                    ${video.tags.slice(0, 3).map(tag => `<span class="tag">${tag}</span>`).join('')}
-                                </div>
-                                <div class="video-actions">
-                                    <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); YouTubeManager.openVideo(${video.id})">
-                                        <i class="fas fa-play me-1"></i> দেখুন
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation(); YouTubeManager.copyCodeDirectly(${video.id})">
-                                        <i class="fas fa-copy me-1"></i> কোড কপি
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-                
-                document.getElementById('videoCount').textContent = `${videos.length} ভিডিও`;
-            },
-            
-            getFilteredVideos() {
-                const searchQuery = document.getElementById('videoSearch').value.toLowerCase();
-                const categoryFilter = document.getElementById('videoCategoryFilter').value;
-                
-                let filtered = [...YouTubeVideos];
-                
-                if (searchQuery) {
-                    filtered = filtered.filter(video => 
-                        video.title.toLowerCase().includes(searchQuery) ||
-                        video.description.toLowerCase().includes(searchQuery) ||
-                        video.tags.some(tag => tag.toLowerCase().includes(searchQuery))
-                    );
-                }
-                
-                if (categoryFilter !== 'all') {
-                    filtered = filtered.filter(video => video.category === categoryFilter);
-                }
-                
-                return filtered;
-            },
-            
-            openVideo(videoId) {
-                const video = YouTubeVideos.find(v => v.id === videoId);
-                if (!video) return;
-                
-                AppState.currentVideo = video;
-                
-                // Update modal content
-                document.getElementById('youtubeModalTitle').textContent = video.title;
-                document.getElementById('videoDescription').textContent = video.description;
-                document.getElementById('youtubeCode').textContent = video.code;
-                document.getElementById('youtubeLink').href = `https://www.youtube.com/watch?v=${video.youtubeId}`;
-                
-                // Update tags
-                const tagsContainer = document.getElementById('videoTags');
-                tagsContainer.innerHTML = video.tags.map(tag => 
-                    `<span class="tag">${tag}</span>`
-                ).join('');
-                
-                // Load YouTube player
-                this.loadYouTubePlayer(video.youtubeId);
-                
-                // Highlight code
-                const codeElement = document.getElementById('youtubeCode');
-                codeElement.className = 'language-powershell';
-                hljs.highlightElement(codeElement);
-                
-                // Show modal
-                const modal = new bootstrap.Modal(document.getElementById('youtubeModal'));
-                modal.show();
-            },
-            
-            loadYouTubePlayer(videoId) {
-                const player = document.getElementById('youtubePlayer');
-                player.src = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&showinfo=0`;
-            },
-            
-            copyVideoCode() {
-                if (!AppState.currentVideo) return;
-                
-                navigator.clipboard.writeText(AppState.currentVideo.code).then(() => {
-                    Utils.showNotification('PowerShell কোড কপি করা হয়েছে!', 'success');
-                }).catch(err => {
-                    console.error('Failed to copy:', err);
-                    Utils.showNotification('কোড কপি করতে সমস্যা হয়েছে', 'error');
-                });
-            },
-            
-            copyCodeDirectly(videoId) {
-                const video = YouTubeVideos.find(v => v.id == videoId);
-                if (!video) return;
-                
-                navigator.clipboard.writeText(video.code).then(() => {
-                    Utils.showNotification(`"${video.title}" এর কোড কপি করা হয়েছে!`, 'success');
-                });
-            },
-            
-            openInPowerShell() {
-                if (!AppState.currentVideo) return;
-                
-                const blob = new Blob([AppState.currentVideo.code], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `powerscript_${AppState.currentVideo.id}.ps1`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                Utils.showNotification('PowerShell স্ক্রিপ্ট ফাইল ডাউনলোড শুরু হয়েছে', 'info');
-            },
-            
-            addVideoToTools() {
-                if (!AppState.currentVideo) return;
-                
-                const toolData = {
-                    id: Utils.generateId(),
-                    name: AppState.currentVideo.title,
-                    category: AppState.currentVideo.category,
-                    description: `YouTube ভিডিও থেকে: ${AppState.currentVideo.description.substring(0, 100)}...`,
-                    code: AppState.currentVideo.code,
-                    tags: [...AppState.currentVideo.tags],
-                    filename: `youtube_${AppState.currentVideo.id}.ps1`,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    executionCount: 0,
-                    lastExecuted: null,
-                    isActive: true,
-                    source: 'youtube'
-                };
-                
-                AppState.tools.unshift(toolData);
-                Utils.saveToLocalStorage();
-                
-                // টুল ম্যানেজারকে কল করুন
-                if (typeof ToolManager !== 'undefined') {
-                    if (typeof ToolManager.renderToolsGrid === 'function') {
-                        ToolManager.renderToolsGrid();
-                    }
-                    if (typeof ToolManager.updateDashboardStats === 'function') {
-                        ToolManager.updateDashboardStats();
-                    }
-                }
-                
-                Utils.logActivity('ভিডিও থেকে টুল যোগ', AppState.currentVideo.title, 'success');
-                Utils.showNotification('ভিডিওর কোড টুলসে যোগ করা হয়েছে!', 'success');
-                
-                // Switch to tools page
-                navigateToPage('tools');
-            }
-        };
-
-        // টুল ম্যানেজার
-        const ToolManager = {
-            init() {
-                this.setupEventListeners();
-                this.renderToolsGrid();
-                this.updateDashboardStats();
-            },
-
-            // ... existing ToolManager methods ...
-
-            updateDashboardStats() {
-                document.getElementById('totalTools').textContent = AppState.tools.length;
-                
-                const totalExecutions = AppState.tools.reduce((sum, tool) => sum + (tool.executionCount || 0), 0);
-                document.getElementById('executionCount').textContent = totalExecutions;
-                
-                const activeTools = AppState.tools.filter(tool => tool.isActive).length;
-                document.getElementById('activeTools').textContent = activeTools;
-                
-                const storageSize = JSON.stringify(AppState.tools).length;
-                document.getElementById('storageUsed').textContent = Utils.formatBytes(storageSize);
-                
-                this.updateRecentTools();
-                this.updateActivityTable();
-            },
-
-            // ... rest of ToolManager ...
-        };
-
-        // ... existing TemplateManager, TerminalManager, BulkActionManager ...
-
-        // অ্যাপ ইনিশিয়ালাইজেশন
-        document.addEventListener('DOMContentLoaded', function() {
-            document.documentElement.setAttribute('data-theme', AppState.theme);
-            document.getElementById('currentYear').textContent = new Date().getFullYear();
-            
-            document.getElementById('themeToggle').addEventListener('click', () => {
-                AppState.theme = AppState.theme === 'light' ? 'dark' : 'light';
-                document.documentElement.setAttribute('data-theme', AppState.theme);
-                localStorage.setItem('theme', AppState.theme);
+                    Utils.showNotification('ব্যাকআপ সফলভাবে তৈরি হয়েছে!', 'success');
+                    Utils.logActivity('ব্যাকআপ তৈরি', backupName, 'success', `Type: ${backupType}`);
+                    
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('backupModal'));
+                    modal.hide();
+                }, 2000);
             });
             
-            document.querySelectorAll('[data-page]').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const page = e.target.closest('[data-page]').dataset.page;
-                    navigateToPage(page);
-                });
-            });
-            
-            document.getElementById('quickAddTool').addEventListener('click', () => {
-                navigateToPage('tools');
-            });
-            
-            document.getElementById('quickTerminal').addEventListener('click', () => {
-                navigateToPage('terminal');
-            });
-            
-            document.getElementById('quickTemplate').addEventListener('click', () => {
-                navigateToPage('templates');
-            });
-            
-            document.getElementById('quickBackup').addEventListener('click', () => {
-                const backupModal = new bootstrap.Modal(document.getElementById('backupModal'));
-                backupModal.show();
-            });
-            
+            // জরুরি স্টপ
             document.getElementById('emergencyStop').addEventListener('click', () => {
                 Swal.fire({
                     title: 'জরুরি স্টপ',
@@ -3528,44 +3805,75 @@ foreach (\$disk in \$disks) {
                 });
             });
             
-            // Initialize highlight.js
+            // এক্সিকিউশন মডাল
+            document.getElementById('startExecution').addEventListener('click', () => {
+                Utils.showNotification('এক্সিকিউশন শুরু হয়েছে', 'info');
+            });
+            
+            document.getElementById('stopExecution').addEventListener('click', () => {
+                Utils.showNotification('এক্সিকিউশন বন্ধ করা হয়েছে', 'warning');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('executionModal'));
+                modal.hide();
+            });
+            
+            // Highlight.js ইনিশিয়ালাইজেশন
             hljs.highlightAll();
             
-            // Initialize managers
+            // ম্যানেজার ইনিশিয়ালাইজেশন
+            SettingsManager.init();
             ToolManager.init();
             TerminalManager.init();
             TemplateManager.init();
             YouTubeManager.init();
             BulkActionManager.init();
             
-            // Auto-save
+            // অটো-সেভ ইন্টারভাল
             setInterval(() => {
                 Utils.saveToLocalStorage();
             }, 30000);
             
+            // অ্যাক্টিভিটি টেবিল আপডেট
+            ToolManager.updateActivityTable();
+            ToolManager.updateRecentTools();
+            
             Utils.showNotification('PowerScript Pro প্রস্তুত!', 'success');
         });
 
-        // পেজ নেভিগেশন
+        // পেজ নেভিগেশন ফাংশন
         function navigateToPage(page) {
+            // Hide all pages
             document.querySelectorAll('.page-content').forEach(p => {
                 p.style.display = 'none';
             });
             
+            // Show selected page
             const pageElement = document.getElementById(page + 'Page');
             if (pageElement) {
                 pageElement.style.display = 'block';
             }
             
+            // Update active nav link
             document.querySelectorAll('[data-page]').forEach(link => {
                 link.classList.remove('active');
             });
+            
             const activeLink = document.querySelector(`[data-page="${page}"]`);
             if (activeLink) {
                 activeLink.classList.add('active');
             }
             
+            // Update app state
             AppState.currentPage = page;
+            
+            // Special handling for certain pages
+            if (page === 'terminal') {
+                setTimeout(() => {
+                    const terminalInput = document.getElementById('terminalInput');
+                    if (terminalInput) {
+                        terminalInput.focus();
+                    }
+                }, 100);
+            }
         }
 
         // গ্লোবাল ফাংশনস
@@ -3574,8 +3882,6 @@ foreach (\$disk in \$disks) {
         window.YouTubeManager = YouTubeManager;
         window.BulkActionManager = BulkActionManager;
         window.navigateToPage = navigateToPage;
-        window.Utils = Utils; // ডিবাগিং এর জন্য
     </script>
 </body>
 </html>
-
